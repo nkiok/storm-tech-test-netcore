@@ -27,14 +27,15 @@ namespace Todo.Controllers
         {
             var userId = User.Id();
             var todoLists = dbContext.RelevantTodoLists(userId);
-            var viewmodel = TodoListIndexViewmodelFactory.Create(todoLists);
+            var viewmodel = TodoListIndexViewmodelFactory.Create(todoLists, userId);
             return View(viewmodel);
         }
 
         public IActionResult Detail(int todoListId)
         {
+            var userId = User.Id();
             var todoList = dbContext.SingleTodoList(todoListId);
-            var viewmodel = TodoListDetailViewmodelFactory.Create(todoList);
+            var viewmodel = TodoListDetailViewmodelFactory.Create(todoList, userId);
             return View(viewmodel);
         }
 
