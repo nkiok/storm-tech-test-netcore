@@ -7,9 +7,9 @@ namespace Todo.EntityModelMappers.TodoLists
 {
     public static class TodoListDetailViewmodelFactory
     {
-        public static TodoListDetailViewmodel Create(TodoList todoList)
+        public static TodoListDetailViewmodel Create(TodoList todoList, string userId)
         {
-            var items = todoList.Items.Select(TodoItemSummaryViewmodelFactory.Create).ToList();
+            var items = todoList.Items.Where(i => todoList.Owner.Id == userId || i.ResponsiblePartyId == userId).Select(TodoItemSummaryViewmodelFactory.Create).ToList();
             return new TodoListDetailViewmodel(todoList.TodoListId, todoList.Title, items);
         }
     }
