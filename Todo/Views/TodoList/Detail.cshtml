@@ -7,6 +7,13 @@
     ViewData["Title"] = $"List: {Model.Title}";
 }
 
+<script type="text/javascript">
+    function toggleCompleted() {
+        $(".list-group-item-completed").toggle("fast", function () {
+        });
+    };
+</script>
+
 <h2>@ViewData["Title"]</h2>
 
 <div class="col-md-6">
@@ -14,10 +21,20 @@
     <ul class="list-group">
 
         <li class="list-group-item">
-            <a asp-action="Create" asp-controller="TodoItem" asp-route-todoListId="@Model.TodoListId">
-                <strong>Add New Item</strong>
-            </a>
-        </li>
+            <div class="row">
+                <div class="col-md-8">
+                    <a asp-action="Create" asp-controller="TodoItem" asp-route-todoListId="@Model.TodoListId">
+                        <strong>Add New Item</strong>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <div class="pull-right">
+                        <input type="checkbox" id="toggleCompleted" onclick="toggleCompleted()"/>
+                        <label for="toggleCompleted">Hide Completed</label>
+                    </div>
+                </div>
+            </div>
+</li>
 
         @foreach (var item in Model.Items.OrderBy(i => i.Importance))
         {
@@ -35,9 +52,14 @@
                     break;
             }
 
+            if (item.IsDone)
+            {
+                contextualClass = $"{contextualClass} list-group-item-completed";
+            }
+
             <li class="list-group-item @contextualClass">
-                
-                <div class="row">
+
+            <div class="row">
 
                 <div class="col-md-8">
                     <a asp-action="Edit" asp-controller="TodoItem" asp-route-todoItemId="@item.TodoItemId">
@@ -61,9 +83,9 @@
 
                     </small>
                 </div>
-                </div>
+            </div>
 
-            </li>
+        </li>
         }
     </ul>
 </div>
