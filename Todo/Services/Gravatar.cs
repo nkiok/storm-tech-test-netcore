@@ -1,24 +1,19 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using Todo.Providers;
 
 namespace Todo.Services
 {
-    public static class Gravatar
+    public class Gravatar
     {
-        public static string GetHash(string emailAddress)
-        {
-            using (var md5 = MD5.Create())
-            {
-                var inputBytes = Encoding.Default.GetBytes(emailAddress.Trim().ToLowerInvariant());
-                var hashBytes = md5.ComputeHash(inputBytes);
+        private readonly IHashProvider _hashProvider;
 
-                var builder = new StringBuilder();
-                foreach (var b in hashBytes)
-                {
-                    builder.Append(b.ToString("X2"));
-                }
-                return builder.ToString().ToLowerInvariant();
-            }
+        public Gravatar(IHashProvider hashProvider)
+        {
+            _hashProvider = hashProvider;
+        }
+
+        public string GetHash(string emailAddress)
+        {
+            return _hashProvider.GetHash(emailAddress);
         }
     }
 }
