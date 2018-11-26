@@ -3,7 +3,7 @@
 @using Todo.Providers
 @using Todo.Services
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
-@inject IHashProvider HashProvider
+@inject IGravatarService GravatarService;
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
@@ -81,7 +81,7 @@
                         <small>
                             @item.ResponsibleParty.UserName
 
-                            <img src="https://www.gravatar.com/avatar/@HashProvider.GetHash(item.ResponsibleParty.Email)?s=30" />
+                            <img src="@GravatarService.GetImgUrl(item.ResponsibleParty.Email)" />
 
                         </small>
                     </div>

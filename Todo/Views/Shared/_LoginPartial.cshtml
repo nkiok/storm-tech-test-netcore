@@ -7,7 +7,7 @@
 
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-@inject IHashProvider HashProvider
+@inject IGravatarService GravatarService
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -20,10 +20,9 @@
 
                         var iu = await UserManager.GetUserAsync(User);
                         var emailAddress = await UserManager.GetEmailAsync(iu);
-                        var gravatarhash = HashProvider.GetHash(emailAddress);
                     }
 
-                    <img src="https://www.gravatar.com/avatar/@gravatarhash?s=30" />
+                    <img src="@GravatarService.GetImgUrl(emailAddress);" />
                     @UserManager.GetUserName(User)
                 </a>
             </li>
