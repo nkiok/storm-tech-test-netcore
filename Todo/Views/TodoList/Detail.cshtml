@@ -1,9 +1,5 @@
-﻿@using Todo.Controllers
-@using Todo.Data.Entities
-@using Todo.Providers
-@using Todo.Services
+﻿@using Todo.Data.Entities
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
-@inject IGravatarService GravatarService;
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
@@ -79,10 +75,9 @@
 
                     <div class="col-md-4 text-right">
                         <small>
-                            @item.ResponsibleParty.UserName
-
-                            <img src="@GravatarService.GetImgUrl(item.ResponsibleParty.Email)" />
-
+                            @{
+                                await Html.RenderPartialAsync("UserInfoPartial", new UserInfo() {Username = item.ResponsibleParty.UserName, Email = item.ResponsibleParty.Email});
+                            }
                         </small>
                     </div>
                 </div>

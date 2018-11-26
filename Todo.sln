@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo", "Todo\Todo.csproj", "{D521EE22-432D-46E6-9F12-3F980DB46413}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.Tests", "Todo.Tests\Todo.Tests.csproj", "{1E5DC103-17C1-4E16-BF56-215356FF3972}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Tests", "Todo.Tests\Todo.Tests.csproj", "{1E5DC103-17C1-4E16-BF56-215356FF3972}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

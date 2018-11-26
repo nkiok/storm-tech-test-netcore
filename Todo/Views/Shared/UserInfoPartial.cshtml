@@ -1,0 +1,11 @@
+﻿@using Todo.Services
+
+@inject IGravatarService GravatarService
+
+@model UserInfo
+
+@{
+    <img src="@GravatarService.GetImgUrl(Model.Email)" />
+    <span>@Model.Username</span>
+    <span>@await GravatarService.GetProfileDisplayName(Model.Email)</span>
+}
