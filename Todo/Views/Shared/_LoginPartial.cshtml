@@ -1,8 +1,4 @@
-@using System.Security.Claims
-@using System.Text
 @using Microsoft.AspNetCore.Identity
-@using Todo.Controllers
-@using Todo.Services
 
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -15,14 +11,11 @@
                 <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
 
                     @{
-
                         var iu = await UserManager.GetUserAsync(User);
                         var emailAddress = await UserManager.GetEmailAsync(iu);
-                        var gravatarhash = Gravatar.GetHash(emailAddress);
-                    }
 
-                    <img src="https://www.gravatar.com/avatar/@gravatarhash?s=30" />
-                    @UserManager.GetUserName(User)
+                        await Html.RenderPartialAsync("UserInfoPartial", new UserInfo() { Username = UserManager.GetUserName(User), Email = emailAddress});
+                    }
                 </a>
             </li>
             <li>

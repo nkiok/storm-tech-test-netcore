@@ -1,6 +1,4 @@
-﻿@using Todo.Controllers
-@using Todo.Data.Entities
-@using Todo.Services
+﻿@using Todo.Data.Entities
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
 
 @{
@@ -29,12 +27,12 @@
                 </div>
                 <div class="col-md-4">
                     <div class="pull-right">
-                        <input type="checkbox" id="toggleCompleted" onclick="toggleCompleted()"/>
+                        <input type="checkbox" id="toggleCompleted" onclick="toggleCompleted()" />
                         <label for="toggleCompleted">Hide Completed</label>
                     </div>
                 </div>
             </div>
-</li>
+        </li>
 
         @foreach (var item in Model.Items.OrderBy(i => i.Importance))
         {
@@ -59,33 +57,32 @@
 
             <li class="list-group-item @contextualClass">
 
-            <div class="row">
+                <div class="row">
 
-                <div class="col-md-8">
-                    <a asp-action="Edit" asp-controller="TodoItem" asp-route-todoItemId="@item.TodoItemId">
+                    <div class="col-md-8">
+                        <a asp-action="Edit" asp-controller="TodoItem" asp-route-todoItemId="@item.TodoItemId">
 
-                        @if (item.IsDone)
-                        {
-                            <s>@item.Title</s>
-                        }
-                        else
-                        {
-                            <text>@item.Title</text>
-                        }
-                    </a>
+                            @if (item.IsDone)
+                            {
+                                <s>@item.Title</s>
+                            }
+                            else
+                            {
+                                <text>@item.Title</text>
+                            }
+                        </a>
+                    </div>
+
+                    <div class="col-md-4 text-right">
+                        <small>
+                            @{
+                                await Html.RenderPartialAsync("UserInfoPartial", new UserInfo() {Username = item.ResponsibleParty.UserName, Email = item.ResponsibleParty.Email});
+                            }
+                        </small>
+                    </div>
                 </div>
 
-                <div class="col-md-4 text-right">
-                    <small>
-                        @item.ResponsibleParty.UserName
-
-                        <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
-
-                    </small>
-                </div>
-            </div>
-
-        </li>
+            </li>
         }
     </ul>
 </div>
