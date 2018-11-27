@@ -1,9 +1,8 @@
 ﻿namespace Todo.Models
 {
-    public class UserInfo
+    public class ProfileIdentifier
     {
+        public string EmailAddress { get; set; }
         public string Username { get; set; }
-
-        public string Email { get; set; }
     }
 }

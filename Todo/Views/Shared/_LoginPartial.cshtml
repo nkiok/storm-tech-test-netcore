@@ -14,7 +14,7 @@
                         var iu = await UserManager.GetUserAsync(User);
                         var emailAddress = await UserManager.GetEmailAsync(iu);
 
-                        await Html.RenderPartialAsync("UserInfoPartial", new UserInfo() { Username = UserManager.GetUserName(User), Email = emailAddress});
+                        await Html.RenderPartialAsync("UserInfoPartial", new ProfileIdentifier() { Username = UserManager.GetUserName(User), EmailAddress = emailAddress});
                     }
                 </a>
             </li>

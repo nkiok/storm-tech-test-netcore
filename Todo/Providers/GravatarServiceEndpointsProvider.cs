@@ -2,19 +2,28 @@
 {
     public class GravatarServiceEndpointsProvider : IServiceEndpointsProvider
     {
+        private readonly IHashProvider _hashProvider;
+        private readonly IBaseUrlProvider _baseUrlProvider;
+
+        public GravatarServiceEndpointsProvider(IHashProvider hashProvider, IBaseUrlProvider baseUrlProvider)
+        {
+            _hashProvider = hashProvider;
+            _baseUrlProvider = baseUrlProvider;
+        }
+
         public string GetBaseUrl()
         {
-            return "https://www.gravatar.com";
+            return _baseUrlProvider.GetBaseUrl();
         }
 
-        public string GetAvatarRoute()
+        public string GetAvatarRoute(string resource)
         {
-            return "/avatar/";
+            return $"/avatar/{_hashProvider.GetHash(resource)}";
         }
 
-        public string GetProfileRoute()
+        public string GetProfileRoute(string resource)
         {
-            return "/";
+            return $"/{_hashProvider.GetHash(resource)}.json";
         }
     }
 }

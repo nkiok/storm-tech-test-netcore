@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Todo.Models;
 
 namespace Todo.Services
 {
@@ -15,20 +16,25 @@ namespace Todo.Services
             _cache = new ConcurrentDictionary<string, string>();
         }
 
-        public string GetImgUrl(string emailAddress)
+        public async Task<string> GetProfileImageUrl(string emailAddress)
         {
-            return _decoratedGravatarService.GetImgUrl(emailAddress);
+            return await _decoratedGravatarService.GetProfileImageUrl(emailAddress);
         }
 
         public async Task<string> GetProfileDisplayName(string emailAddress)
         {
             if (_cache.TryGetValue(emailAddress, out var profileDisplayName)) return profileDisplayName;
 
-            var result = await _decoratedGravatarService.GetProfileDisplayName(emailAddress);
+            var displayName = await _decoratedGravatarService.GetProfileDisplayName(emailAddress);
 
-            _cache.TryAdd(emailAddress, result);
+            _cache.TryAdd(emailAddress, displayName);
 
-            return result;
+            return displayName;
+        }
+
+        public async Task<ProfileInfo> GetProfileInfo(string emailAddress)
+        {
+            return await _decoratedGravatarService.GetProfileInfo(emailAddress);
         }
     }
 }

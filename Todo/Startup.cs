@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Todo.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Todo.Http;
 using Todo.Providers;
 using Todo.Services;
 
@@ -48,6 +49,9 @@ namespace Todo
             services.AddSingleton<IGravatarService, GravatarService>();
             services.Decorate<IGravatarService, CachedGravatarService>();
             services.AddTransient<IServiceEndpointsProvider, GravatarServiceEndpointsProvider>();
+            services.AddTransient<IBaseUrlProvider, GravatarBaseUrlProvider>();
+            services.AddTransient<IProfileProvider, GravatarProfileProvider>();
+            services.AddTransient<IHttpClient, HttpClientFacade>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

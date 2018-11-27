@@ -4,8 +4,8 @@
     {
         string GetBaseUrl();
 
-        string GetAvatarRoute();
+        string GetAvatarRoute(string resource);
 
-        string GetProfileRoute();
+        string GetProfileRoute(string resource);
     }
 }

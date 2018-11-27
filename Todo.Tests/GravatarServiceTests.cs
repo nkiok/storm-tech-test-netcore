@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using NSubstitute;
 using NUnit.Framework;
 using Shouldly;
@@ -10,44 +11,85 @@ namespace Todo.Tests
     public class GravatarServiceTests
     {
         private IGravatarService _gravatarService;
-        private IHashProvider _hashProvider;
-        private IServiceEndpointsProvider _serviceEndpointsProvider;
+        private IProfileProvider _profileProvider;
 
         [SetUp]
         public void SetUp()
         {
-            _hashProvider = Substitute.For<IHashProvider>();
+            _profileProvider = Substitute.For<IProfileProvider>();
 
-            _serviceEndpointsProvider = Substitute.For<IServiceEndpointsProvider>();
-
-            _gravatarService = new GravatarService(_hashProvider, _serviceEndpointsProvider);
+            _gravatarService = new GravatarService(_profileProvider);
         }
 
         [Test]
-        [TestCase("anyemail", "anyhash", "https://www.gravatar.com", "/someroute/", "https://www.gravatar.com/someroute/anyhash?s=30")]
-        public void ReturnsExpectedImgUrl(string email, string hash, string baseUrl, string avatarRoute, string expectedResult)
+        [TestCase("anyemail", "https://www.someurl.com/someavatarroute/anyhash?s=30")]
+        public async Task ReturnsExpectedProfileImageUrl(string email, string expectedResult)
         {
-            _hashProvider.GetHash(email).Returns(hash);
+            _profileProvider.GetImageUrl(email).Returns(Result.Ok(expectedResult));
 
-            _serviceEndpointsProvider.GetBaseUrl().Returns(baseUrl);
+            var result = await _gravatarService.GetProfileImageUrl(email);
 
-            _serviceEndpointsProvider.GetAvatarRoute().Returns(avatarRoute);
-
-            var result = _gravatarService.GetImgUrl(email);
-
-            _hashProvider.Received().GetHash(Arg.Any<string>());
-
-            _serviceEndpointsProvider.Received().GetBaseUrl();
-
-            _serviceEndpointsProvider.Received().GetAvatarRoute();
+            await _profileProvider.Received().GetImageUrl(email);
 
             result.ShouldBe(expectedResult);
         }
 
-        private static IDictionary<string, string> SomeRoutes(string someroute)
+        [Test]
+        [TestCase("anyemail", "https://www.someurl.com/someavatarroute/anyhash?s=30", "anyname")]
+        public async Task ReturnsExpectedProfileInfo(string emailAddress, string expectedUrl, string expectedName)
         {
-            return new Dictionary<string, string>()
-            { { someroute, someroute}};
+            _profileProvider.GetImageUrl(emailAddress).Returns(Result.Ok(expectedUrl));
+
+            _profileProvider.GetDisplayName(emailAddress).Returns(Result.Ok(expectedName));
+
+            var result = await _gravatarService.GetProfileInfo(emailAddress);
+
+            await _profileProvider.Received().GetImageUrl(emailAddress);
+
+            await _profileProvider.Received().GetDisplayName(emailAddress);
+
+            result.AvatarUrl.ShouldBe(expectedUrl);
+            result.ProfileIdentifier.Username.ShouldBe(expectedName);
+            result.ProfileIdentifier.EmailAddress.ShouldBe(emailAddress);
+        }
+
+        [Test]
+        [TestCase("anyemail")]
+        public async Task ReturnsEmptyWhenGetImageUrlFails(string email)
+        {
+            _profileProvider.GetImageUrl(email).Returns(Result.Fail<string>("error"));
+
+            var result = await _gravatarService.GetProfileImageUrl(email);
+
+            await _profileProvider.Received().GetImageUrl(email);
+
+            result.ShouldBeEmpty();
+        }
+
+        [Test]
+        [TestCase("anyemail", "anyname")]
+        public async Task ReturnsExpectedProfileDisplayName(string email, string expectedResult)
+        {
+            _profileProvider.GetDisplayName(email).Returns(Result.Ok(expectedResult));
+
+            var result = await _gravatarService.GetProfileDisplayName(email);
+
+            await _profileProvider.Received().GetDisplayName(email);
+
+            result.ShouldBe(expectedResult);
+        }
+
+        [Test]
+        [TestCase("anyemail")]
+        public async Task ReturnsEmptyWhenGetDisplayNameFails(string email)
+        {
+            _profileProvider.GetDisplayName(email).Returns(Result.Fail<string>("error"));
+
+            var result = await _gravatarService.GetProfileDisplayName(email);
+
+            await _profileProvider.Received().GetDisplayName(email);
+
+            result.ShouldBeEmpty();
         }
     }
 }

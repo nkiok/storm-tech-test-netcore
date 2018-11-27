@@ -1,81 +1,56 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Todo.Models;
 using Todo.Providers;
 
 namespace Todo.Services
 {
     public class GravatarService : IGravatarService
     {
-        private readonly IHashProvider _hashProvider;
-        private readonly IServiceEndpointsProvider _serviceEndpointsProvider;
+        private readonly IProfileProvider _profileProvider;
 
-        public GravatarService(IHashProvider hashProvider, IServiceEndpointsProvider serviceEndpointsProvider)
+        public GravatarService(IProfileProvider profileProvider)
         {
-            _hashProvider = hashProvider;
-            _serviceEndpointsProvider = serviceEndpointsProvider;
+            _profileProvider = profileProvider;
         }
 
-        public string GetImgUrl(string emailAddress)
+        public async Task<string> GetProfileImageUrl(string emailAddress)
         {
-            return $"{GetBaseServiceUrl()}{GetAvatarRoute()}{GetHash(emailAddress)}?{GetImageSizeParam()}";
+            var result = await _profileProvider.GetImageUrl(emailAddress);
+
+            return result.IsSuccess
+                ? result.Value
+                : string.Empty;
         }
 
         public async Task<string> GetProfileDisplayName(string emailAddress)
         {
-            var requestUri = $"{GetProfileRoute()}{GetHash(emailAddress)}.json";
+            var result = await _profileProvider.GetDisplayName(emailAddress);
 
-            using (var client = new HttpClient())
+            return result.IsSuccess
+                ? result.Value
+                : string.Empty;
+        }
+
+        public async Task<ProfileInfo> GetProfileInfo(string emailAddress)
+        {
+            var tasks = new List<Task<Result<string>>>
             {
-                client.BaseAddress = new Uri(GetBaseServiceUrl());
-
-                client.DefaultRequestHeaders.Add("User-Agent", "TodoApp");
-
-                try
-                {
-                    var response = await client.GetAsync(requestUri);
-
-                    if (!response.IsSuccessStatusCode) return string.Empty;
-
-                    var gravatarProfileResponse = await response.Content.ReadAsStringAsync();
-
-                    dynamic gravatarProfile = JsonConvert.DeserializeObject(gravatarProfileResponse);
-
-                    return gravatarProfile.entry[0].displayName;
-                }
-                catch
-                {
-                    return string.Empty;
-                }
+                _profileProvider.GetImageUrl(emailAddress),
+                _profileProvider.GetDisplayName(emailAddress)
             }
-        }
+            .ToArray();
 
-        private string GetHash(string emailAddress)
-        {
-            return _hashProvider.GetHash(emailAddress);
-        }
+            var results = await Task.WhenAll(tasks);
 
-        private string GetBaseServiceUrl()
-        {
-            return _serviceEndpointsProvider.GetBaseUrl();
-        }
-
-        private string GetAvatarRoute()
-        {
-            return _serviceEndpointsProvider.GetAvatarRoute();
-        }
-
-        private string GetProfileRoute()
-        {
-            return _serviceEndpointsProvider.GetProfileRoute();
-        }
-
-        private static string GetImageSizeParam()
-        {
-            const int defaultImageSize = 30;
-
-            return $"s={defaultImageSize}";
+            return new ProfileInfo()
+            {
+                ProfileIdentifier = new ProfileIdentifier() { EmailAddress =  emailAddress},
+                AvatarUrl = results[0].IsSuccess ? results[0].Value : string.Empty,
+                DisplayName = results[1].IsSuccess ? results[1].Value : string.Empty,
+            };
         }
     }
 }
