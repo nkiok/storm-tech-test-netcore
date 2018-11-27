@@ -52,6 +52,7 @@ namespace Todo
             services.AddTransient<IBaseUrlProvider, GravatarBaseUrlProvider>();
             services.AddTransient<IProfileProvider, GravatarProfileProvider>();
             services.AddTransient<IHttpClient, HttpClientFacade>();
+            services.AddTransient<IRequestBuilder, GravatarServiceRequestBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

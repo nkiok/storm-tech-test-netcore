@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Todo.Models;
 using Todo.Providers;
 
@@ -16,30 +15,12 @@ namespace Todo.Services
             _profileProvider = profileProvider;
         }
 
-        public async Task<string> GetProfileImageUrl(string emailAddress)
-        {
-            var result = await _profileProvider.GetImageUrl(emailAddress);
-
-            return result.IsSuccess
-                ? result.Value
-                : string.Empty;
-        }
-
-        public async Task<string> GetProfileDisplayName(string emailAddress)
-        {
-            var result = await _profileProvider.GetDisplayName(emailAddress);
-
-            return result.IsSuccess
-                ? result.Value
-                : string.Empty;
-        }
-
-        public async Task<ProfileInfo> GetProfileInfo(string emailAddress)
+        public async Task<ProfileInfo> GetProfileInfo(string profileIdentifier)
         {
             var tasks = new List<Task<Result<string>>>
             {
-                _profileProvider.GetImageUrl(emailAddress),
-                _profileProvider.GetDisplayName(emailAddress)
+                _profileProvider.GetImageUrl(profileIdentifier),
+                _profileProvider.GetDisplayName(profileIdentifier)
             }
             .ToArray();
 
@@ -47,7 +28,7 @@ namespace Todo.Services
 
             return new ProfileInfo()
             {
-                ProfileIdentifier = new ProfileIdentifier() { EmailAddress =  emailAddress},
+                ProfileIdentifier = new ProfileIdentifier() { EmailAddress = profileIdentifier },
                 AvatarUrl = results[0].IsSuccess ? results[0].Value : string.Empty,
                 DisplayName = results[1].IsSuccess ? results[1].Value : string.Empty,
             };

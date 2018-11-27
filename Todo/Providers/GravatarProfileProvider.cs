@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
@@ -11,11 +10,13 @@ namespace Todo.Providers
     {
         private readonly IServiceEndpointsProvider _serviceEndpointsProvider;
         private readonly IHttpClient _httpClient;
+        private readonly IRequestBuilder _requestBuilder;
 
-        public GravatarProfileProvider(IServiceEndpointsProvider serviceEndpointsProvider, IHttpClient httpClient)
+        public GravatarProfileProvider(IServiceEndpointsProvider serviceEndpointsProvider, IHttpClient httpClient, IRequestBuilder requestBuilder)
         {
             _serviceEndpointsProvider = serviceEndpointsProvider;
             _httpClient = httpClient;
+            _requestBuilder = requestBuilder;
         }
 
         public Task<Result<string>> GetImageUrl(string profileIdentifier)
@@ -27,14 +28,11 @@ namespace Todo.Providers
         {
             try
             {
-                var requestUri = $"{GetBaseServiceUrl()}{GetProfileRoute(profileIdentifier)}";
+                var request = _requestBuilder.BuildRequestMessage(profileIdentifier);
 
-                var message = new HttpRequestMessage(HttpMethod.Get, requestUri);
+                var response = await _httpClient.SendAsync(request);
 
-                var response = await _httpClient.SendAsync(message);
-
-                if (!response.IsSuccessStatusCode)
-                    return Result.Fail<string>($"{response.StatusCode}-{response.ReasonPhrase}");
+                if (!response.IsSuccessStatusCode) return Result.Fail<string>($"{response.StatusCode}-{response.ReasonPhrase}");
 
                 var gravatarProfileResponse = await response.Content.ReadAsStringAsync();
 
@@ -60,16 +58,13 @@ namespace Todo.Providers
             return _serviceEndpointsProvider.GetAvatarRoute(resource);
         }
 
-        private string GetProfileRoute(string resource)
-        {
-            return _serviceEndpointsProvider.GetProfileRoute(resource);
-        }
-
         private static string GetImageSizeParam()
         {
             const int defaultImageSize = 30;
 
             return $"s={defaultImageSize}";
         }
+
+
     }
 }

@@ -76,7 +76,7 @@
                     <div class="col-md-4 text-right">
                         <small>
                             @{
-                                await Html.RenderPartialAsync("UserInfoPartial", new UserInfo() {Username = item.ResponsibleParty.UserName, Email = item.ResponsibleParty.Email});
+                                await Html.RenderPartialAsync("UserInfoPartial", new ProfileIdentifier() {Username = item.ResponsibleParty.UserName, EmailAddress = item.ResponsibleParty.Email});
                             }
                         </small>
                     </div>

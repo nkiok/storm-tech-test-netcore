@@ -7,34 +7,24 @@ namespace Todo.Services
     public class CachedGravatarService : IGravatarService
     {
         private readonly IGravatarService _decoratedGravatarService;
-        private readonly ConcurrentDictionary<string, string> _cache;
+        private readonly ConcurrentDictionary<string, ProfileInfo> _cache;
 
         public CachedGravatarService(IGravatarService decoratedGravatarService)
         {
             _decoratedGravatarService = decoratedGravatarService;
 
-            _cache = new ConcurrentDictionary<string, string>();
-        }
-
-        public async Task<string> GetProfileImageUrl(string emailAddress)
-        {
-            return await _decoratedGravatarService.GetProfileImageUrl(emailAddress);
-        }
-
-        public async Task<string> GetProfileDisplayName(string emailAddress)
-        {
-            if (_cache.TryGetValue(emailAddress, out var profileDisplayName)) return profileDisplayName;
-
-            var displayName = await _decoratedGravatarService.GetProfileDisplayName(emailAddress);
-
-            _cache.TryAdd(emailAddress, displayName);
-
-            return displayName;
+            _cache = new ConcurrentDictionary<string, ProfileInfo>();
         }
 
         public async Task<ProfileInfo> GetProfileInfo(string emailAddress)
         {
-            return await _decoratedGravatarService.GetProfileInfo(emailAddress);
+            if (_cache.TryGetValue(emailAddress, out var cachedProfileInfo)) return cachedProfileInfo;
+
+            var profileInfo = await _decoratedGravatarService.GetProfileInfo(emailAddress);
+
+            _cache.TryAdd(emailAddress, profileInfo);
+
+            return profileInfo;
         }
     }
 }
