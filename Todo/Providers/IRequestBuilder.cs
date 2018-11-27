@@ -4,6 +4,6 @@ namespace Todo.Providers
 {
     public interface IRequestBuilder
     {
-        HttpRequestMessage BuildRequestMessage(string profileIdentifier);
+        HttpRequestMessage BuildRequestMessage(HttpMethod httpMethod, string requestUri);
     }
 }

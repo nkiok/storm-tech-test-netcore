@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
@@ -26,7 +27,9 @@ namespace Todo.Providers
 
         public async Task<Result<string>> GetDisplayName(string profileIdentifier)
         {
-            var request = _requestBuilder.BuildRequestMessage(profileIdentifier);
+            var requestUri = $"{GetBaseServiceUrl()}{GetProfileRoute(profileIdentifier)}";
+
+            var request = _requestBuilder.BuildRequestMessage(HttpMethod.Get, requestUri);
 
             var response = await _httpClient.SendAsync(request);
 
@@ -51,13 +54,16 @@ namespace Todo.Providers
             return _serviceEndpointsProvider.GetAvatarRoute(resource);
         }
 
+        private string GetProfileRoute(string resource)
+        {
+            return _serviceEndpointsProvider.GetProfileRoute(resource);
+        }
+
         private static string GetImageSizeParam()
         {
             const int defaultImageSize = 30;
 
             return $"s={defaultImageSize}";
         }
-
-
     }
 }
