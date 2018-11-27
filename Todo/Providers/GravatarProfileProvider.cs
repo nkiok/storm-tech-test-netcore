@@ -26,26 +26,19 @@ namespace Todo.Providers
 
         public async Task<Result<string>> GetDisplayName(string profileIdentifier)
         {
-            try
-            {
-                var request = _requestBuilder.BuildRequestMessage(profileIdentifier);
+            var request = _requestBuilder.BuildRequestMessage(profileIdentifier);
 
-                var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
 
-                if (!response.IsSuccessStatusCode) return Result.Fail<string>($"{response.StatusCode}-{response.ReasonPhrase}");
+            if (!response.IsSuccessStatusCode) return Result.Fail<string>($"{response.StatusCode}-{response.ReasonPhrase}");
 
-                var gravatarProfileResponse = await response.Content.ReadAsStringAsync();
+            var gravatarProfileResponse = await response.Content.ReadAsStringAsync();
 
-                dynamic gravatarProfile = JsonConvert.DeserializeObject(gravatarProfileResponse);
+            dynamic gravatarProfile = JsonConvert.DeserializeObject(gravatarProfileResponse);
 
-                var displayName = Convert.ToString(gravatarProfile.entry[0].displayName);
+            var displayName = Convert.ToString(gravatarProfile.entry[0].displayName);
 
-                return Result.Ok(displayName);
-            }
-            catch (Exception ex)
-            {
-                return Result.Fail<string>(ex.Message);
-            }
+            return Result.Ok(displayName);
         }
 
         private string GetBaseServiceUrl()
