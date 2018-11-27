@@ -9,20 +9,22 @@ namespace Todo.Services
     public class GravatarService : IGravatarService
     {
         private readonly IHashProvider _hashProvider;
+        private readonly IServiceEndpointsProvider _serviceEndpointsProvider;
 
-        public GravatarService(IHashProvider hashProvider)
+        public GravatarService(IHashProvider hashProvider, IServiceEndpointsProvider serviceEndpointsProvider)
         {
             _hashProvider = hashProvider;
+            _serviceEndpointsProvider = serviceEndpointsProvider;
         }
 
         public string GetImgUrl(string emailAddress)
         {
-            return $"{GetBaseServiceUrl()}/avatar/{GetHash(emailAddress)}?{GetImageSizeParam()}";
+            return $"{GetBaseServiceUrl()}{GetAvatarRoute()}{GetHash(emailAddress)}?{GetImageSizeParam()}";
         }
 
         public async Task<string> GetProfileDisplayName(string emailAddress)
         {
-            var requestUri = $"{GetHash(emailAddress)}.json";
+            var requestUri = $"{GetProfileRoute()}{GetHash(emailAddress)}.json";
 
             using (var client = new HttpClient())
             {
@@ -54,9 +56,19 @@ namespace Todo.Services
             return _hashProvider.GetHash(emailAddress);
         }
 
-        private static string GetBaseServiceUrl()
+        private string GetBaseServiceUrl()
         {
-            return "https://www.gravatar.com";
+            return _serviceEndpointsProvider.GetBaseUrl();
+        }
+
+        private string GetAvatarRoute()
+        {
+            return _serviceEndpointsProvider.GetAvatarRoute();
+        }
+
+        private string GetProfileRoute()
+        {
+            return _serviceEndpointsProvider.GetProfileRoute();
         }
 
         private static string GetImageSizeParam()

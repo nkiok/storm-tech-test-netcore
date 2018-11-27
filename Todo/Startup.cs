@@ -47,6 +47,7 @@ namespace Todo
             services.AddTransient<IHashProvider, GravatarHashProvider>();
             services.AddSingleton<IGravatarService, GravatarService>();
             services.Decorate<IGravatarService, CachedGravatarService>();
+            services.AddTransient<IServiceEndpointsProvider, GravatarServiceEndpointsProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
