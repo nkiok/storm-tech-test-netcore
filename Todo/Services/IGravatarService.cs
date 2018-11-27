@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
+using Todo.Models;
 
 namespace Todo.Services
 {
     public interface IGravatarService
     {
-        string GetImgUrl(string emailAddress);
-
-        Task<string> GetProfileDisplayName(string emailAddress);
+        Task<ProfileInfo> GetProfileInfo(string profileIdentifier);
     }
 }

@@ -1,34 +1,30 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Todo.Models;
 
 namespace Todo.Services
 {
     public class CachedGravatarService : IGravatarService
     {
         private readonly IGravatarService _decoratedGravatarService;
-        private readonly ConcurrentDictionary<string, string> _cache;
+        private readonly ConcurrentDictionary<string, ProfileInfo> _cache;
 
         public CachedGravatarService(IGravatarService decoratedGravatarService)
         {
             _decoratedGravatarService = decoratedGravatarService;
 
-            _cache = new ConcurrentDictionary<string, string>();
+            _cache = new ConcurrentDictionary<string, ProfileInfo>();
         }
 
-        public string GetImgUrl(string emailAddress)
+        public async Task<ProfileInfo> GetProfileInfo(string emailAddress)
         {
-            return _decoratedGravatarService.GetImgUrl(emailAddress);
-        }
+            if (_cache.TryGetValue(emailAddress, out var cachedProfileInfo)) return cachedProfileInfo;
 
-        public async Task<string> GetProfileDisplayName(string emailAddress)
-        {
-            if (_cache.TryGetValue(emailAddress, out var profileDisplayName)) return profileDisplayName;
+            var profileInfo = await _decoratedGravatarService.GetProfileInfo(emailAddress);
 
-            var result = await _decoratedGravatarService.GetProfileDisplayName(emailAddress);
+            _cache.TryAdd(emailAddress, profileInfo);
 
-            _cache.TryAdd(emailAddress, result);
-
-            return result;
+            return profileInfo;
         }
     }
 }

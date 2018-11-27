@@ -2,10 +2,12 @@
 
 @inject IGravatarService GravatarService
 
-@model UserInfo
+@model ProfileIdentifier
 
 @{
-    <img src="@GravatarService.GetImgUrl(Model.Email)" />
+    var profileInfo = await GravatarService.GetProfileInfo(Model.EmailAddress);
+
+    <img src="@profileInfo.AvatarUrl" alt="User profile image"/>
     <span>@Model.Username</span>
-    <span>@await GravatarService.GetProfileDisplayName(Model.Email)</span>
+    <span>@profileInfo.DisplayName</span>
 }

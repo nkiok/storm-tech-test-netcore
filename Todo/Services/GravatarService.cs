@@ -1,69 +1,37 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using CSharpFunctionalExtensions;
+using Todo.Models;
 using Todo.Providers;
 
 namespace Todo.Services
 {
     public class GravatarService : IGravatarService
     {
-        private readonly IHashProvider _hashProvider;
+        private readonly IProfileProvider _profileProvider;
 
-        public GravatarService(IHashProvider hashProvider)
+        public GravatarService(IProfileProvider profileProvider)
         {
-            _hashProvider = hashProvider;
+            _profileProvider = profileProvider;
         }
 
-        public string GetImgUrl(string emailAddress)
+        public async Task<ProfileInfo> GetProfileInfo(string profileIdentifier)
         {
-            return $"{GetBaseServiceUrl()}/avatar/{GetHash(emailAddress)}?{GetImageSizeParam()}";
-        }
-
-        public async Task<string> GetProfileDisplayName(string emailAddress)
-        {
-            var requestUri = $"{GetHash(emailAddress)}.json";
-
-            using (var client = new HttpClient())
+            var tasks = new List<Task<Result<string>>>
             {
-                client.BaseAddress = new Uri(GetBaseServiceUrl());
-
-                client.DefaultRequestHeaders.Add("User-Agent", "TodoApp");
-
-                try
-                {
-                    var response = await client.GetAsync(requestUri);
-
-                    if (!response.IsSuccessStatusCode) return string.Empty;
-
-                    var gravatarProfileResponse = await response.Content.ReadAsStringAsync();
-
-                    dynamic gravatarProfile = JsonConvert.DeserializeObject(gravatarProfileResponse);
-
-                    return gravatarProfile.entry[0].displayName;
-                }
-                catch
-                {
-                    return string.Empty;
-                }
+                _profileProvider.GetImageUrl(profileIdentifier),
+                _profileProvider.GetDisplayName(profileIdentifier)
             }
-        }
+            .ToArray();
 
-        private string GetHash(string emailAddress)
-        {
-            return _hashProvider.GetHash(emailAddress);
-        }
+            var results = await Task.WhenAll(tasks);
 
-        private static string GetBaseServiceUrl()
-        {
-            return "https://www.gravatar.com";
-        }
-
-        private static string GetImageSizeParam()
-        {
-            const int defaultImageSize = 30;
-
-            return $"s={defaultImageSize}";
+            return new ProfileInfo()
+            {
+                ProfileIdentifier = new ProfileIdentifier() { EmailAddress = profileIdentifier },
+                AvatarUrl = results[0].IsSuccess ? results[0].Value : string.Empty,
+                DisplayName = results[1].IsSuccess ? results[1].Value : string.Empty,
+            };
         }
     }
 }
